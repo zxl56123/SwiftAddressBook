@@ -22,6 +22,7 @@ class ViewController: UIViewController ,UITableViewDelegate,UITableViewDataSourc
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
+        self.navigationItem.title = "通讯录"
         
         //定义一个错误标记对象，判断是否成功
         var error:Unmanaged<CFError>?
@@ -434,7 +435,7 @@ class ViewController: UIViewController ,UITableViewDelegate,UITableViewDataSourc
     
     //MARK: - lazy
     lazy var tableView: UITableView = {
-        let tempTable = UITableView(frame: CGRect(x: 0, y: 20, width: self.view.frame.width, height: self.view.frame.height-20))
+        let tempTable = UITableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height-64))
         tempTable.delegate = self
         tempTable.dataSource = self
         

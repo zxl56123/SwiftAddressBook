@@ -30,6 +30,63 @@ class ContactListViewController: UIViewController ,UITableViewDelegate,UITableVi
         // Do any additional setup after loading the view.
         self.navigationItem.title = "通讯录"
         
+        //获取通讯录
+        
+        //定义一个错误标记对象，判断是否成功
+        var error:Unmanaged<CFError>?
+        addressBook = ABAddressBookCreateWithOptions(nil, &error).takeRetainedValue()
+        
+        //发出授权信息
+        let sysAddressBookStatus = ABAddressBookGetAuthorizationStatus()
+        if (sysAddressBookStatus == ABAuthorizationStatus.notDetermined) {
+            print("requesting access...")
+            var _:Unmanaged<CFError>? = nil
+            //addressBook = extractABAddressBookRef(ABAddressBookCreateWithOptions(nil, &errorRef))
+            ABAddressBookRequestAccessWithCompletion(addressBook, { success, error in
+                if success {
+                    
+                    //异步处理
+                    let queue = DispatchQueue(label: "com.hgp.book", qos: DispatchQoS.utility, attributes: .concurrent)
+                    queue.async {
+                        //获取并遍历所有联系人记录
+                        let allRecords: [ContactModel]? = self.readRecords();
+                        //排序
+                        (self.contactAr, self.contactTitleAr) = self.allContactsSort(byContacts: allRecords)
+                        //返回主线程刷新UI
+                        DispatchQueue.main.async {
+                            //刷新tableview
+                            self.tableView.reloadData()
+                        }
+                    }
+                }
+                else {
+                    print("error")
+                }
+            })
+        }
+        else if (sysAddressBookStatus == ABAuthorizationStatus.denied ||
+            sysAddressBookStatus == ABAuthorizationStatus.restricted) {
+            print("access denied")
+        }
+        else if (sysAddressBookStatus == ABAuthorizationStatus.authorized) {
+            print("access granted")
+            
+            //异步处理
+            let queue = DispatchQueue(label: "com.hgp.book", qos: DispatchQoS.utility, attributes: .concurrent)
+            queue.async {
+                //获取并遍历所有联系人记录
+                let allRecords: [ContactModel]? = self.readRecords();
+                //排序
+                (self.contactAr, self.contactTitleAr) = self.allContactsSort(byContacts: allRecords)
+                //返回主线程刷新UI
+                DispatchQueue.main.async {
+                    //刷新tableview
+                    self.tableView.reloadData()
+                }
+            }
+            
+        }
+
     }
     
     //获取并遍历所有联系人记录
@@ -235,6 +292,7 @@ class ContactListViewController: UIViewController ,UITableViewDelegate,UITableVi
     
     func allContactsSort(byContacts contacts: Array<ContactModel>?) -> (Array<Any>?, [String]?){
         
+        var contacts = contacts
         var tempContactAr: [Any]? = Array()
         var tempContactTitleAr: [String]? = Array()
         
@@ -403,6 +461,7 @@ class ContactListViewController: UIViewController ,UITableViewDelegate,UITableVi
         let tempTable = UITableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: SCREENHEIGHT - 64))
         tempTable.delegate = self
         tempTable.dataSource = self
+        tempTable.tableFooterView = UIView(frame:CGRect.zero)
         
         return tempTable
     }()
@@ -418,48 +477,6 @@ class ContactListViewController: UIViewController ,UITableViewDelegate,UITableVi
         if !self.view.subviews.contains(tableView) {
 
             self.view.addSubview(self.tableView)
-
-            //获取通讯录
-            
-            //定义一个错误标记对象，判断是否成功
-            var error:Unmanaged<CFError>?
-            addressBook = ABAddressBookCreateWithOptions(nil, &error).takeRetainedValue()
-            
-            //发出授权信息
-            let sysAddressBookStatus = ABAddressBookGetAuthorizationStatus()
-            if (sysAddressBookStatus == ABAuthorizationStatus.notDetermined) {
-                print("requesting access...")
-                var _:Unmanaged<CFError>? = nil
-                //addressBook = extractABAddressBookRef(ABAddressBookCreateWithOptions(nil, &errorRef))
-                ABAddressBookRequestAccessWithCompletion(addressBook, { success, error in
-                    if success {
-                        //获取并遍历所有联系人记录
-                        let allRecords: [ContactModel]? = self.readRecords();
-                        //排序
-                        (self.contactAr, self.contactTitleAr) = self.allContactsSort(byContacts: allRecords)
-                        //刷新tableview
-                        self.tableView.reloadData()
-                    }
-                    else {
-                        print("error")
-                    }
-                })
-            }
-            else if (sysAddressBookStatus == ABAuthorizationStatus.denied ||
-                sysAddressBookStatus == ABAuthorizationStatus.restricted) {
-                print("access denied")
-            }
-            else if (sysAddressBookStatus == ABAuthorizationStatus.authorized) {
-                print("access granted")
-                
-                //获取并遍历所有联系人记录
-                let allRecords: [ContactModel]? = self.readRecords()
-                //排序
-                (self.contactAr, self.contactTitleAr) = self.allContactsSort(byContacts: allRecords)
-                
-                //刷新tableview
-                self.tableView.reloadData()
-            }
             
         }
     }

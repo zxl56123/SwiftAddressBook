@@ -10,12 +10,19 @@ import UIKit
 import AddressBook
 import AddressBookUI
 
+let SCREENHEIGHT = UIScreen.main.bounds.size.height
+let SCREENWIDTH = UIScreen.main.bounds.size.width
+
+
 class ContactListViewController: UIViewController ,UITableViewDelegate,UITableViewDataSource {
 
     //address Book对象，用来获取电话簿句柄
     var addressBook: ABAddressBook?
     var contactAr: [Any]? = Array()
     var contactTitleAr: [String]? = Array()
+    
+    var selectedContact: ((_ selectedModel: ContactModel, _ phoneNum: String) -> Void)? = nil
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -383,13 +390,17 @@ class ContactListViewController: UIViewController ,UITableViewDelegate,UITableVi
         
         let contactDetailVC = ContactDetailViewController()
         contactDetailVC.model = model
+        contactDetailVC.selectedBlock = { (_ selectedModel: ContactModel, _ phoneNum: String) -> Void in
+            self.selectedContact!(selectedModel, phoneNum)
+        }
+        
         self.navigationController?.pushViewController(contactDetailVC, animated: true)
     }
     
     
     //MARK: - lazy
     lazy var tableView: UITableView = {
-        let tempTable = UITableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height-64))
+        let tempTable = UITableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: SCREENHEIGHT - 64))
         tempTable.delegate = self
         tempTable.dataSource = self
         

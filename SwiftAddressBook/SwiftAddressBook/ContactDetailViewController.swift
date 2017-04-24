@@ -18,6 +18,8 @@ class ContactDetailViewController: UIViewController,UITableViewDelegate,UITableV
     
     var model: ContactModel?
 
+    var selectedBlock: ((_ selectedModel: ContactModel, _ phoneNum: String) -> Void)? = nil
+
     let cellHeight: CGFloat = 44.00
     
     override func viewDidLoad() {
@@ -57,10 +59,23 @@ class ContactDetailViewController: UIViewController,UITableViewDelegate,UITableV
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //取消选中
         tableView.deselectRow(at: indexPath, animated: true)
+        let phoneNum = model?.phoneAr?[indexPath.row]
+        //回调block
+        self.selectedBlock!(model!,phoneNum!)
         
-        //回调
+        var navArr: [UIViewController] = Array()
         
+        //删除联系人列表页面
+        for vc: UIViewController in (self.navigationController?.viewControllers)! {
+            
+            if !vc.isKind(of: ContactListViewController.self) {
+                navArr.append(vc)
+            }
+        }
         
+        self.navigationController?.setViewControllers(navArr, animated: false)
+        
+        self.navigationController?.popViewController(animated: true)
     }
     
     //MARK: - lazy

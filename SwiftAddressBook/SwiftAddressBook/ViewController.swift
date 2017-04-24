@@ -28,6 +28,17 @@ class ViewController: UIViewController {
     
     func tapBtn(_ sender: UIButton){
         let contactListVC = ContactListViewController()
+        contactListVC.selectedContact = { (_ selectedModel: ContactModel, _ phoneNum: String) -> Void in
+            
+            if (selectedModel.contactName?.characters.count)! > 0 {
+                print(selectedModel.contactName! + phoneNum)
+            }else {
+                print(selectedModel.nikeName! + phoneNum)
+            }
+            
+        
+        }
+        
         self.navigationController?.pushViewController(contactListVC, animated: true)
         
     }

@@ -14,6 +14,8 @@
 		E36B57BA1EAD9C1700E16B10 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E36B57B81EAD9C1700E16B10 /* LaunchScreen.storyboard */; };
 		E36B57C31EAD9C6100E16B10 /* CommonSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = E36B57C11EAD9C6100E16B10 /* CommonSwift.swift */; };
 		E36B57C41EAD9C6100E16B10 /* ContactModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E36B57C21EAD9C6100E16B10 /* ContactModel.swift */; };
+		E36B57C71EADDA4500E16B10 /* ContactTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E36B57C51EADDA4500E16B10 /* ContactTableViewCell.swift */; };
+		E36B57C81EADDA4500E16B10 /* ContactTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E36B57C61EADDA4500E16B10 /* ContactTableViewCell.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,8 @@
 		E36B57BB1EAD9C1700E16B10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E36B57C11EAD9C6100E16B10 /* CommonSwift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonSwift.swift; sourceTree = "<group>"; };
 		E36B57C21EAD9C6100E16B10 /* ContactModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactModel.swift; sourceTree = "<group>"; };
+		E36B57C51EADDA4500E16B10 /* ContactTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactTableViewCell.swift; sourceTree = "<group>"; };
+		E36B57C61EADDA4500E16B10 /* ContactTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ContactTableViewCell.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +66,8 @@
 				E36B57C21EAD9C6100E16B10 /* ContactModel.swift */,
 				E36B57AF1EAD9C1700E16B10 /* AppDelegate.swift */,
 				E36B57B11EAD9C1700E16B10 /* ViewController.swift */,
+				E36B57C51EADDA4500E16B10 /* ContactTableViewCell.swift */,
+				E36B57C61EADDA4500E16B10 /* ContactTableViewCell.xib */,
 				E36B57B31EAD9C1700E16B10 /* Main.storyboard */,
 				E36B57B61EAD9C1700E16B10 /* Assets.xcassets */,
 				E36B57B81EAD9C1700E16B10 /* LaunchScreen.storyboard */,
@@ -130,6 +136,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E36B57C81EADDA4500E16B10 /* ContactTableViewCell.xib in Resources */,
 				E36B57BA1EAD9C1700E16B10 /* LaunchScreen.storyboard in Resources */,
 				E36B57B71EAD9C1700E16B10 /* Assets.xcassets in Resources */,
 				E36B57B51EAD9C1700E16B10 /* Main.storyboard in Resources */,
@@ -144,6 +151,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E36B57B21EAD9C1700E16B10 /* ViewController.swift in Sources */,
+				E36B57C71EADDA4500E16B10 /* ContactTableViewCell.swift in Sources */,
 				E36B57B01EAD9C1700E16B10 /* AppDelegate.swift in Sources */,
 				E36B57C41EAD9C6100E16B10 /* ContactModel.swift in Sources */,
 				E36B57C31EAD9C6100E16B10 /* CommonSwift.swift in Sources */,

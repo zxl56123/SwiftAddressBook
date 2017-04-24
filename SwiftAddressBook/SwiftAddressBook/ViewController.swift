@@ -81,6 +81,16 @@ class ViewController: UIViewController ,UITableViewDelegate,UITableViewDataSourc
             //
             //            continue
             
+            //获取头像
+            var image: UIImage!
+            
+            if (ABPersonHasImageData(contact as ABRecord)) {
+                let imgData = ABPersonCopyImageDataWithFormat(contact as ABRecord, kABPersonImageFormatOriginalSize).takeRetainedValue()
+                image = UIImage(data: imgData as Data)
+                //数据模型赋值
+                tempModel.headImage = image
+            }
+            
             //获取姓
             let lastName: String = ABRecordCopyValue(contact as ABRecord, kABPersonLastNameProperty)? .takeRetainedValue() as! String? ?? ""
             print("姓：\(lastName)")
@@ -377,19 +387,16 @@ class ViewController: UIViewController ,UITableViewDelegate,UITableViewDataSourc
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 44
+        return 64
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell()
+        let cell = ContactTableViewCell.cellWithTableView(tableView: tableView)
         //赋值
         var secAr: [ContactModel] = contactAr![indexPath.section] as! [ContactModel]
         let model: ContactModel = secAr[indexPath.row]
-        if (model.contactName?.characters.count)! > 0 {
-            cell.textLabel?.text = model.contactName
-        }else {
-            cell.textLabel?.text = model.nikeName
-        }
+        
+        cell.model = model
         
         return cell
     }

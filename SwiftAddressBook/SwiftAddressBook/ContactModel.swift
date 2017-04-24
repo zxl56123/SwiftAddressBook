@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import UIKit
 
 class ContactModel: NSObject {
-    
+    var headImage: UIImage? //头像
     var contactName: String?
     var nikeName: String?
     var organization: String?

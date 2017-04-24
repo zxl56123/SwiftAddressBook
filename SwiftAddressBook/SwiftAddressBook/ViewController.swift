@@ -15,7 +15,7 @@ class ViewController: UIViewController ,UITableViewDelegate,UITableViewDataSourc
     
     //address Book对象，用来获取电话簿句柄
     var addressBook: ABAddressBook?
-    var contactAr: Array<Any>? = Array()
+    var contactAr: [Any]? = Array()
     var contactTitleAr: [String]? = Array()
     
     override func viewDidLoad() {
@@ -39,7 +39,8 @@ class ViewController: UIViewController ,UITableViewDelegate,UITableViewDataSourc
                     let allRecords: [ContactModel]? = self.readRecords();
                     //排序
                     (self.contactAr, self.contactTitleAr) = self.allContactsSort(byContacts: allRecords)
-                    
+                    //刷新tableview
+                    self.tableView.reloadData()
                 }
                 else {
                     print("error")
@@ -268,13 +269,26 @@ class ViewController: UIViewController ,UITableViewDelegate,UITableViewDataSourc
             for  model :ContactModel in contacts! {
                 //获取首字母大写
                 let pinyin_name = model.contactName?.transformToPinYin()
+                let pinyin_nickname = model.nikeName?.transformToPinYin()
                 
+                var firstStr = ""
+                var firstStr_nick = ""
+                
+                //name
                 if (pinyin_name?.characters.count)! > 0 {
-                    
                     let index = pinyin_name?.index((pinyin_name?.startIndex)! , offsetBy: 1)
+                    firstStr = (pinyin_name?.substring(to: index!))!
+                }
+                
+                //nickname
+                if (pinyin_nickname?.characters.count)! > 0 {
+                    let index_nick = pinyin_nickname?.index((pinyin_nickname?.startIndex)!, offsetBy: 1)
+                    firstStr_nick = (pinyin_nickname?.substring(to: index_nick!))!
+                }
+                
+                if ((firstStr.characters.count) > 0 && isAZ(str: firstStr)) || ((firstStr_nick.characters.count) > 0 && isAZ(str: firstStr_nick)) {
                     
-                    let firstStr = pinyin_name?.substring(to: index!)
-                    if title == firstStr {
+                    if title == firstStr || title == firstStr_nick {
                         
                         if (tempContactTitleAr?.count)! > 0 {
                             if (tempContactTitleAr?[(tempContactTitleAr?.count)! - 1])! == title {
@@ -337,13 +351,29 @@ class ViewController: UIViewController ,UITableViewDelegate,UITableViewDataSourc
         return (tempContactAr, tempContactTitleAr)
     }
     
+    //判断是否是字母
+    func isAZ(str: String) -> Bool {
+        
+        let pattern = "^[A-Za-z]"
+        
+        let regex = try! NSRegularExpression(pattern: pattern, options: NSRegularExpression.Options(rawValue:0))
+        let res = regex.matches(in: str, options: NSRegularExpression.MatchingOptions(rawValue:0), range: NSMakeRange(0, str.characters.count))
+        
+        if res.count > 0 {
+            return true
+        }
+        
+        return false
+        
+    }
+    
     //MARK: - tableview
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return (contactAr?.count)!
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return (contactAr?.count)!
+        return (contactAr![section] as AnyObject).count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -353,20 +383,51 @@ class ViewController: UIViewController ,UITableViewDelegate,UITableViewDataSourc
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell()
         //赋值
-        cell.textLabel?.text = contactAr?[indexPath.row] as? String
+        var secAr: [ContactModel] = contactAr![indexPath.section] as! [ContactModel]
+        let model: ContactModel = secAr[indexPath.row]
+        if (model.contactName?.characters.count)! > 0 {
+            cell.textLabel?.text = model.contactName
+        }else {
+            cell.textLabel?.text = model.nikeName
+        }
         
         return cell
+    }
+    
+    func sectionIndexTitles(for tableView: UITableView) -> [String]? {
+        return contactTitleAr
+    }
+    
+    func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
+        return index
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return contactTitleAr?[section]
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //取消选中
         tableView.deselectRow(at: indexPath, animated: true)
         
+        var secAr: [ContactModel] = contactAr![indexPath.section] as! [ContactModel]
+        let model: ContactModel = secAr[indexPath.row]
+        
+        if model.phoneAr?.count == 0 {
+            //没有手机联系人
+            
+        }else if model.phoneAr?.count == 1 {
+            //直接回调
+            
+        }else {
+            //没有手机联系人、多个联系人
+        }
     }
+ 
     
     //MARK: - lazy
     lazy var tableView: UITableView = {
-        let tempTable = UITableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height-64))
+        let tempTable = UITableView(frame: CGRect(x: 0, y: 20, width: self.view.frame.width, height: self.view.frame.height-20))
         tempTable.delegate = self
         tempTable.dataSource = self
         

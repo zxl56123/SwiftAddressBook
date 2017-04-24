@@ -16,7 +16,7 @@ extension String{
         let pinyinStr = String(mutableString)
         
         //去除字符串中的空格
-        let whitespace = NSCharacterSet.whitespacesAndNewlines
+        let whitespace = NSCharacterSet.whitespaces
         let resultStr = pinyinStr.trimmingCharacters(in: whitespace)
         
         return resultStr.uppercased()

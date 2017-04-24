@@ -45,7 +45,7 @@ class ContactTableViewCell: UITableViewCell {
         titleName.font = UIFont.systemFont(ofSize: 15.0)
         headImageV.layer.cornerRadius = headImageV.frame.width/2.0
         headImageV.layer.masksToBounds = true
-        headImageV.backgroundColor = UIColor.gray
+        headImageV.backgroundColor = UIColor.lightGray
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

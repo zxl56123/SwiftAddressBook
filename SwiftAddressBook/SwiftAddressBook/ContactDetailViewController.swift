@@ -10,11 +10,7 @@ import UIKit
 
 class ContactDetailViewController: UIViewController,UITableViewDelegate,UITableViewDataSource {
 
-    @IBOutlet weak var topView: UIView!
-    @IBOutlet weak var headImageV: UIImageView!
-    @IBOutlet weak var titleName: UILabel!
-    
-    @IBOutlet weak var ContactView: UIView!
+    var topView: UIView?
     
     var model: ContactModel?
 
@@ -80,7 +76,7 @@ class ContactDetailViewController: UIViewController,UITableViewDelegate,UITableV
     
     //MARK: - lazy
     lazy var tableView: UITableView = {
-        let tempTable = UITableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height-64))
+        let tempTable = UITableView(frame: CGRect(x: 0, y: 100 , width: self.view.frame.width, height: self.view.frame.height - 100 - 64))
         tempTable.delegate = self
         tempTable.dataSource = self
         tempTable.tableFooterView = UIView(frame:CGRect.zero)
@@ -96,16 +92,26 @@ class ContactDetailViewController: UIViewController,UITableViewDelegate,UITableV
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if !self.ContactView.subviews.contains(tableView) {
-            self.ContactView.addSubview(self.tableView)
-        }
+        self.initTopView()
+        self.view.addSubview(self.tableView)
+    }
+    
+    func initTopView() {
+        topView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 100))
+        self.view.addSubview(topView!)
         
+        let headImageV = UIImageView(frame: CGRect(x: 12, y: 12, width: 64, height: 64))
+        topView?.addSubview(headImageV)
         headImageV.layer.masksToBounds = true
         headImageV.layer.cornerRadius = 64/2.0
         headImageV.backgroundColor = UIColor.lightGray
-
+        
         headImageV.image = model?.headImage
-        titleName.text = model?.contactName
+        
+        let titleLab = UILabel(frame: CGRect(x: headImageV.frame.maxX + 12, y: headImageV.frame.maxY - headImageV.frame.height/2.0, width: self.view.frame.width - (headImageV.frame.maxY - headImageV.frame.height/2.0) - 12 , height: 21))
+        topView?.addSubview(titleLab)
+        
+        titleLab.text = model?.contactName
         
     }
     

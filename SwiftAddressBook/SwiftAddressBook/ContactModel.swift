@@ -12,7 +12,7 @@ import UIKit
 class ContactModel: NSObject {
     var headImage: UIImage? //头像
     var contactName: String?
-    var nikeName: String?
+    //var nikeName: String?
     var organization: String?
     var jobTitle: String?
     var department: String?

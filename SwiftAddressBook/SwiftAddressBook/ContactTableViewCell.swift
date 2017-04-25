@@ -19,11 +19,8 @@ class ContactTableViewCell: UITableViewCell {
             headImageV.image = model?.headImage
             headImageV.layer.cornerRadius = headImageV.frame.width/2.0
 
-            if (model?.contactName?.characters.count)! > 0 {
                 titleName.text = model?.contactName
-            }else {
-                titleName.text = model?.nikeName
-            }
+            
         }
     }
     

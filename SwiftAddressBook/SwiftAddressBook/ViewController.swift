@@ -32,8 +32,6 @@ class ViewController: UIViewController {
             
             if (selectedModel.contactName?.characters.count)! > 0 {
                 print(selectedModel.contactName! + phoneNum)
-            }else {
-                print(selectedModel.nikeName! + phoneNum)
             }
             
         

@@ -18,8 +18,8 @@ class ContactListViewController: UIViewController ,UITableViewDelegate,UITableVi
 
     //address Book对象，用来获取电话簿句柄
     var addressBook: ABAddressBook?
-    var contactAr: [Any]? = Array()
-    var contactTitleAr: [String]? = Array()
+    var contactAr = [String:[ContactModel]]()
+    var contactTitleAr = [String]()
     
     var selectedContact: ((_ selectedModel: ContactModel, _ phoneNum: String) -> Void)? = nil
 
@@ -48,15 +48,15 @@ class ContactListViewController: UIViewController ,UITableViewDelegate,UITableVi
                     //异步处理
                     let queue = DispatchQueue(label: "com.hgp.book", qos: DispatchQoS.utility, attributes: .concurrent)
                     queue.async {
-                        //获取并遍历所有联系人记录
-                        let allRecords: [ContactModel]? = self.readRecords();
-                        //排序
-                        (self.contactAr, self.contactTitleAr) = self.allContactsSort(byContacts: allRecords)
-                        //返回主线程刷新UI
-                        DispatchQueue.main.async {
-                            //刷新tableview
-                            self.tableView.reloadData()
-                        }
+//                        //获取并遍历所有联系人记录
+//                        let allRecords: [ContactModel]? = self.readRecords();
+//                        //排序
+//                        //(self.contactAr, self.contactTitleAr) = self.allContactsSort(byContacts: allRecords)
+//                        //返回主线程刷新UI
+//                        DispatchQueue.main.async {
+//                            //刷新tableview
+//                            self.tableView.reloadData()
+//                        }
                     }
                 }
                 else {
@@ -75,9 +75,9 @@ class ContactListViewController: UIViewController ,UITableViewDelegate,UITableVi
             let queue = DispatchQueue(label: "com.hgp.book", qos: DispatchQoS.utility, attributes: .concurrent)
             queue.async {
                 //获取并遍历所有联系人记录
-                let allRecords: [ContactModel]? = self.readRecords();
+                (self.contactAr, self.contactTitleAr) = self.readRecords();
                 //排序
-                (self.contactAr, self.contactTitleAr) = self.allContactsSort(byContacts: allRecords)
+                //(self.contactAr, self.contactTitleAr) = self.allContactsSort(byContacts: allRecords)
                 //返回主线程刷新UI
                 DispatchQueue.main.async {
                     //刷新tableview
@@ -90,11 +90,11 @@ class ContactListViewController: UIViewController ,UITableViewDelegate,UITableVi
     }
     
     //获取并遍历所有联系人记录
-    func readRecords() -> [ContactModel]? {
+    func readRecords() -> ([String:[ContactModel]],[String]) {
         let sysContacts:NSArray = ABAddressBookCopyArrayOfAllPeople(addressBook as ABAddressBook)
             .takeRetainedValue() as NSArray
         
-        var tempContactAr :[ContactModel]? = Array()
+        var addressBookDict = [String:[ContactModel]]()
         
         for contact in sysContacts {
             
@@ -124,14 +124,23 @@ class ContactListViewController: UIViewController ,UITableViewDelegate,UITableVi
             let firstName: String = ABRecordCopyValue(contact as ABRecord, kABPersonFirstNameProperty)? .takeRetainedValue() as! String? ?? ""
             print("名：\(firstName)")
             
+            let contactName = lastName + firstName
             //tempModel.contactName = lastName + firstName
-            tempModel.contactName = String(lastName) + String(firstName)
             
             //昵称
             let nikeName = ABRecordCopyValue(contact as ABRecord, kABPersonNicknameProperty)?
                 .takeRetainedValue() as! String? ?? ""
             print("昵称：\(nikeName)")
-            tempModel.nikeName = nikeName
+            //tempModel.nikeName = nikeName
+            
+            if contactName.characters.count > 0 {
+                tempModel.contactName = contactName
+            }else {
+                tempModel.contactName = nikeName
+            }
+            
+            
+
             
             //公司（组织）
             let organization = ABRecordCopyValue(contact as ABRecord, kABPersonOrganizationProperty)?
@@ -282,134 +291,78 @@ class ContactListViewController: UIViewController ,UITableViewDelegate,UITableVi
                 }
             #endif
             
-            tempContactAr?.append(tempModel)
             
-        }
-        
-        return tempContactAr
-        
-    }
-    
-    func allContactsSort(byContacts contacts: Array<ContactModel>?) -> (Array<Any>?, [String]?){
-        
-        var contacts = contacts
-        var tempContactAr: [Any]? = Array()
-        var tempContactTitleAr: [String]? = Array()
-        
-        var notNameContact: [ContactModel] = Array()
-        
-        let headerTitle = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","#"]
-        
-        for title: String in headerTitle {
+            // 获取到姓名的大写首字母
+            let firstLetterString = getFirstLetterFromString(aString: tempModel.contactName!)
             
-            for  model :ContactModel in contacts! {
-                //获取首字母大写
-                let pinyin_name = model.contactName?.transformToPinYin()
-                let pinyin_nickname = model.nikeName?.transformToPinYin()
+            if addressBookDict[firstLetterString] != nil {
+                // swift的字典,如果对应的key在字典中没有,则会新增
+                addressBookDict[firstLetterString]?.append(tempModel)
                 
-                var firstStr = ""
-                var firstStr_nick = ""
-                
-                //name
-                if (pinyin_name?.characters.count)! > 0 {
-                    let index = pinyin_name?.index((pinyin_name?.startIndex)! , offsetBy: 1)
-                    firstStr = (pinyin_name?.substring(to: index!))!
-                }
-                
-                //nickname
-                if (pinyin_nickname?.characters.count)! > 0 {
-                    let index_nick = pinyin_nickname?.index((pinyin_nickname?.startIndex)!, offsetBy: 1)
-                    firstStr_nick = (pinyin_nickname?.substring(to: index_nick!))!
-                }
-                
-                if ((firstStr.characters.count) > 0 && isAZ(str: firstStr)) || ((firstStr_nick.characters.count) > 0 && isAZ(str: firstStr_nick)) {
-                    
-                    if title == firstStr || title == firstStr_nick {
-                        
-                        if (tempContactTitleAr?.count)! > 0 {
-                            if (tempContactTitleAr?[(tempContactTitleAr?.count)! - 1])! == title {
-                                //已经添加过
-                                var existAr: Array<ContactModel> = tempContactAr?[(tempContactAr?.count)! - 1] as! Array<ContactModel>
-                                existAr.append(model)
-                                tempContactAr?[(tempContactAr?.count)! - 1] = existAr
-                            }else {
-                                //没有添加
-                                tempContactTitleAr?.append(title)
-                                var tempAr: [ContactModel] = Array()
-                                tempAr.append(model)
-                                tempContactAr?.append(tempAr)
-                                
-                            }
-                        }else {
-                            //没有添加
-                            tempContactTitleAr?.append(title)
-                            var tempAr: [ContactModel] = Array()
-                            tempAr.append(model)
-                            tempContactAr?.append(tempAr)
-                            
-                        }
-                    }
-                }else {
-                    if notNameContact.count > 0 {
-                        //# 特殊字符处理
-                        var isExist: Bool = false
-                        for index: Int in 0..<notNameContact.count {
-                            
-                            if model == notNameContact[index] {
-                                //已经存在
-                                isExist = true
-                                break
-                            }
-                        }
-                        
-                        if false == isExist {
-                            //不存在
-                            notNameContact.append(model)
-                        }
-                        
-                    }else {
-                        //不存
-                        notNameContact.append(model)
-                    }
-                }
-                
+            } else {
+                let arrGroupNames = [tempModel]
+                addressBookDict[firstLetterString] = arrGroupNames as? [ContactModel]
             }
         }
         
-        if (notNameContact.count != 0) {
-            tempContactTitleAr?.append("#")
-            tempContactAr?.append(notNameContact)
+        // 将addressBookDict字典中的所有Key值进行排序: A~Z
+        var nameKeys = Array(addressBookDict.keys).sorted()
+        
+        // 将 "#" 排列在 A~Z 的后面
+        if nameKeys.first == "#" {
+            nameKeys.insert(nameKeys.first!, at: nameKeys.count)
+            nameKeys.remove(at: 0);
         }
         
-        print(tempContactAr ?? "")
-        print(tempContactTitleAr ?? "")
+        return (addressBookDict,nameKeys)
         
-        return (tempContactAr, tempContactTitleAr)
     }
     
-    //判断是否是字母
-    func isAZ(str: String) -> Bool {
+    // MARK: - 获取联系人姓名首字母(传入汉字字符串, 返回大写拼音首字母)
+    func getFirstLetterFromString(aString: String) -> (String) {
         
-        let pattern = "^[A-Za-z]"
-        
-        let regex = try! NSRegularExpression(pattern: pattern, options: NSRegularExpression.Options(rawValue:0))
-        let res = regex.matches(in: str, options: NSRegularExpression.MatchingOptions(rawValue:0), range: NSMakeRange(0, str.characters.count))
-        
-        if res.count > 0 {
-            return true
+        if aString.characters.count > 0 {
+            
+            // 注意,这里一定要转换成可变字符串
+            let mutableString = NSMutableString.init(string: aString)
+            // 将中文转换成带声调的拼音
+            CFStringTransform(mutableString as CFMutableString, nil, kCFStringTransformToLatin, false)
+            // 去掉声调(用此方法大大提高遍历的速度)
+            let pinyinString = mutableString.folding(options: String.CompareOptions.diacriticInsensitive, locale: NSLocale.current)
+            // 将拼音首字母装换成大写
+            let strPinYin = polyphoneStringHandle(nameString: aString, pinyinString: pinyinString).uppercased()
+            // 截取大写首字母
+            let firstString = strPinYin.substring(to: strPinYin.index(strPinYin.startIndex, offsetBy:1))
+            // 判断姓名首位是否为大写字母
+            let regexA = "^[A-Z]$"
+            let predA = NSPredicate.init(format: "SELF MATCHES %@", regexA)
+            return predA.evaluate(with: firstString) ? firstString : "#"
+        }else {
+            return "#"
         }
-        
-        return false
-        
     }
+    
+    /// 多音字处理
+    func polyphoneStringHandle(nameString:String, pinyinString:String) -> String {
+        if nameString.hasPrefix("长") {return "chang"}
+        if nameString.hasPrefix("沈") {return "shen"}
+        if nameString.hasPrefix("厦") {return "xia"}
+        if nameString.hasPrefix("地") {return "di"}
+        if nameString.hasPrefix("重") {return "chong"}
+        
+        return pinyinString;
+    }
+    
     
     //MARK: - tableview
     func numberOfSections(in tableView: UITableView) -> Int {
-        return (contactAr?.count)!
+        return (contactTitleAr.count)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return (contactAr![section] as AnyObject).count
+        let key = contactTitleAr[section]
+        let array = contactAr[key]
+        return array!.count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -419,8 +372,8 @@ class ContactListViewController: UIViewController ,UITableViewDelegate,UITableVi
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = ContactTableViewCell.cellWithTableView(tableView: tableView)
         //赋值
-        var secAr: [ContactModel] = contactAr![indexPath.section] as! [ContactModel]
-        let model: ContactModel = secAr[indexPath.row]
+        let modelArray = contactAr[(contactTitleAr[indexPath.section])]
+        let model: ContactModel = modelArray![indexPath.row]
         
         cell.model = model
         
@@ -436,15 +389,15 @@ class ContactListViewController: UIViewController ,UITableViewDelegate,UITableVi
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return contactTitleAr?[section]
+        return contactTitleAr[section]
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //取消选中
         tableView.deselectRow(at: indexPath, animated: true)
         
-        var secAr: [ContactModel] = contactAr![indexPath.section] as! [ContactModel]
-        let model: ContactModel = secAr[indexPath.row]
+        let modelArray = contactAr[(contactTitleAr[indexPath.section])]
+        let model: ContactModel = modelArray![indexPath.row]
         
         let contactDetailVC = ContactDetailViewController()
         contactDetailVC.model = model
